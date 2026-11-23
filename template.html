@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>德文名詞聽寫</title>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#202c24;background:#f1f3eb;--green:#244b37;--line:#d4ded2}
+*{box-sizing:border-box} body{margin:0} main{max-width:780px;margin:auto;padding:clamp(18px,5vw,50px)}
+h1,h2,p{margin:0 0 .7em} h1{font-size:clamp(1.8rem,5vw,2.7rem);letter-spacing:-.04em}
+header{margin-bottom:1.4rem} header p{color:#48594c} section{background:#fffefa;border:1px solid var(--line);border-radius:20px;padding:clamp(18px,4vw,36px)}
+label{font-weight:600} select,input:not([type=checkbox]){display:block;width:100%;padding:.65rem .8rem;margin:.25rem 0 .8rem;border:1px solid #849688;border-radius:8px;background:white;color:inherit;font:inherit}
+fieldset{border:none;padding:0;margin:1rem 0} legend{font-weight:650;margin-bottom:.4rem}
+#categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:.35rem .9rem;margin-top:.55rem}
+#categories label{font-weight:450;padding:.3rem 0} input[type=checkbox]{accent-color:var(--green);margin-right:.5rem}
+button{font:inherit;font-weight:650;color:var(--green);border:1px solid #8da794;background:#f3f7ee;border-radius:9px;padding:.52rem .85rem;cursor:pointer;min-height:42px}
+button.primary{background:var(--green);border-color:var(--green);color:white} button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ad701b;outline-offset:2px}
+.controls,#letters{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.9rem 0}
+#letters button{padding:.25rem .55rem;min-width:36px} #audio-status,#feedback{color:#763718}
+[aria-invalid=true]{border-color:#b34a31!important;background:#fff5ee!important}
+#solution{background:#edf4e8;border-radius:8px;padding:.75rem;margin:.7rem 0}
+#progress{width:100%;accent-color:var(--green);margin-bottom:.5rem} #missed{padding-left:1.4rem} [hidden]{display:none!important}
+</style>
+</head>
+<body><main>
+<header><h1>德文名詞聽寫</h1><p>聽發音，寫出含冠詞的單數或複數。</p></header>
+<section id="setup">
+<label for="course">課程</label><select id="course"></select>
+<fieldset><legend>練習類別</legend><label><input type="checkbox" id="all" checked>全選類別</label><div id="categories"></div></fieldset>
+<p id="count" aria-live="polite"></p><button class="primary" id="start">開始練習</button>
+</section>
+<section id="exercise" hidden>
+<h2 id="position"></h2><progress id="progress" aria-label="練習進度"></progress>
+<div class="controls"><button id="replay">重播</button><button id="slow">慢速播放</button></div>
+<p id="audio-status" role="status"></p>
+<form id="answers" autocomplete="off" novalidate>
+<div id="singular-row"><label for="singular">單數（含冠詞）</label><input id="singular" lang="de" spellcheck="false" autocapitalize="off"></div>
+<div id="plural-row"><label for="plural">複數（含 die）</label><input id="plural" lang="de" spellcheck="false" autocapitalize="off"></div>
+<div id="letters" role="group" aria-label="德文字元"></div>
+<p id="feedback" aria-live="polite"></p><div id="solution" aria-live="polite" hidden></div>
+<div class="controls"><button class="primary" id="check" type="submit">檢查答案</button><button id="reveal" type="button">看解答</button><button class="primary" id="next" type="button" hidden>下一題</button></div>
+</form>
+<button id="back">返回課程</button>
+</section>
+<section id="results" hidden>
+<h2 id="score" tabindex="-1"></h2><p id="review-title"></p><ul id="missed"></ul>
+<div class="controls"><button class="primary" id="retry">重練錯題</button><button id="again">原類別再練</button><button id="choose">返回課程</button></div>
+</section>
+</main>
+<!-- COURSE_DATA -->
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const courses = JSON.parse($("courses").textContent);
+const audio = new Audio();
+const forms = ["singular", "plural"];
+let words = [], original = [], missed = [], index = 0, firstCorrect = 0;
+let attempted, resolved, review, activeField, playback = 0;
+
+function show(view) {
+  for (const section of ["setup", "exercise", "results"]) $(section).hidden = section !== view;
+}
+function selectedWords() {
+  const selected = new Set([...$("categories").querySelectorAll("input:checked")].map(box => box.value));
+  return courses[$("course").selectedIndex].words.filter(word => selected.has(word.category));
+}
+function updateSelection() {
+  const boxes = [...$("categories").querySelectorAll("input")];
+  const checked = boxes.filter(box => box.checked).length;
+  $("all").checked = checked === boxes.length;
+  $("all").indeterminate = checked > 0 && checked < boxes.length;
+  const count = selectedWords().length;
+  $("count").textContent = count + " 題";
+  $("start").disabled = !count;
+}
+function loadCategories() {
+  $("categories").replaceChildren();
+  for (const category of new Set(courses[$("course").selectedIndex].words.map(word => word.category))) {
+    const label = document.createElement("label");
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.value = category;
+    box.checked = true;
+    label.append(box, category);
+    $("categories").append(label);
+  }
+  updateSelection();
+}
+function loadRound(items, isReview = false) {
+  words = [...items];
+  for (let i = words.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [words[i], words[j]] = [words[j], words[i]];
+  }
+  index = firstCorrect = 0;
+  missed = [];
+  review = isReview;
+  show("exercise");
+  loadWord();
+}
+function play(rate) {
+  const request = ++playback;
+  audio.pause();
+  if (audio.error) audio.load();
+  audio.currentTime = 0;
+  audio.playbackRate = rate;
+  $("audio-status").textContent = "";
+  audio.play().catch(() => {
+    if (request !== playback) return;
+    $("audio-status").textContent = "音檔播放失敗，請按重試播放。";
+    $("replay").textContent = "重試播放";
+  });
+}
+function loadWord() {
+  const word = words[index];
+  attempted = resolved = false;
+  $("position").textContent = "第 " + (index + 1) + " / " + words.length + " 題";
+  $("progress").max = words.length;
+  $("progress").value = index + 1;
+  for (const form of forms) {
+    $(form + "-row").hidden = !word[form].length;
+    $(form).value = "";
+    $(form).readOnly = false;
+    $(form).removeAttribute("aria-invalid");
+  }
+  for (const id of ["letters", "check", "reveal"]) $(id).hidden = false;
+  for (const id of ["next", "solution"]) $(id).hidden = true;
+  $("feedback").textContent = "";
+  $("replay").textContent = "重播";
+  activeField = word.singular.length ? "singular" : "plural";
+  $(activeField).focus();
+  audio.src = word.audio;
+  play(1);
+}
+function normalize(value) {
+  return value.normalize("NFC").trim().replace(/\s+/gu, " ");
+}
+function complete(correct) {
+  resolved = true;
+  const word = words[index];
+  if (correct && !attempted) firstCorrect++;
+  else missed.push(word);
+  for (const form of forms) {
+    $(form).readOnly = true;
+    $(form).removeAttribute("aria-invalid");
+  }
+  for (const id of ["letters", "check", "reveal"]) $(id).hidden = true;
+  $("feedback").textContent = correct ? "答對了" : "解答";
+  const answer = [...forms.flatMap(form => word[form].length ? [word[form].join(" ／ ")] : []), word.meaning].filter(Boolean);
+  $("solution").replaceChildren(...answer.map(text => {
+    const line = document.createElement("div");
+    line.textContent = text;
+    return line;
+  }));
+  $("solution").hidden = false;
+  $("next").hidden = false;
+  $("next").focus();
+}
+function check(event) {
+  event.preventDefault();
+  if (resolved) return;
+  const word = words[index];
+  const required = forms.filter(form => word[form].length);
+  const blank = required.find(form => !normalize($(form).value));
+  if (blank) {
+    $("feedback").textContent = "請填寫所有作答欄。";
+    $(blank).focus();
+    return;
+  }
+  const wrong = required.filter(form => !word[form].some(answer => normalize(answer) === normalize($(form).value)));
+  if (!wrong.length) {
+    complete(true);
+    return;
+  }
+  attempted = true;
+  for (const form of required) $(form).setAttribute("aria-invalid", wrong.includes(form));
+  $("feedback").textContent = "請修改標示的欄位，或查看解答。";
+  $(wrong[0]).focus();
+}
+function next() {
+  if (!resolved) return;
+  playback++;
+  audio.pause();
+  index++;
+  if (index < words.length) {
+    loadWord();
+    return;
+  }
+  show("results");
+  $("score").textContent = "第一次全對 " + firstCorrect + " / " + words.length;
+  $("review-title").textContent = missed.length ? "待複習的詞" : (review ? "錯題已練完" : "本輪全對");
+  $("missed").replaceChildren(...missed.map(word => {
+    const item = document.createElement("li");
+    item.textContent = [...word.singular, ...word.plural].join(" ／ ");
+    return item;
+  }));
+  $("retry").hidden = missed.length === 0;
+  $("score").focus();
+}
+function returnToSetup() {
+  playback++;
+  audio.pause();
+  show("setup");
+  $("course").focus();
+}
+for (const course of courses) $("course").add(new Option(course.title));
+for (const symbol of "äöüÄÖÜß") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = symbol;
+  button.addEventListener("click", () => {
+    const field = $(activeField);
+    field.setRangeText(symbol, field.selectionStart, field.selectionEnd, "end");
+    field.focus();
+  });
+  $("letters").append(button);
+}
+for (const form of forms) $(form).addEventListener("focus", () => { activeField = form; });
+$("course").addEventListener("change", loadCategories);
+$("categories").addEventListener("change", updateSelection);
+$("all").addEventListener("change", () => {
+  for (const box of $("categories").querySelectorAll("input")) box.checked = $("all").checked;
+  updateSelection();
+});
+$("start").addEventListener("click", () => { original = selectedWords(); if (original.length) loadRound(original); });
+$("replay").addEventListener("click", () => { $("replay").textContent = "重播"; play(1); });
+$("slow").addEventListener("click", () => play(.75));
+$("answers").addEventListener("submit", check);
+$("reveal").addEventListener("click", () => complete(false));
+$("next").addEventListener("click", next);
+$("retry").addEventListener("click", () => loadRound(missed, true));
+$("again").addEventListener("click", () => loadRound(original));
+$("back").addEventListener("click", returnToSetup);
+$("choose").addEventListener("click", returnToSetup);
+loadCategories();
+</script>
+</body></html>

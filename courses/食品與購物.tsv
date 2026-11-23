@@ -1,0 +1,65 @@
+category	spoken	singular	plural	meaning_zh
+Obst（水果）	Obst	das Obst		水果
+Obst（水果）	Apfel	der Apfel	die Äpfel	蘋果
+Obst（水果）	Banane	die Banane	die Bananen	香蕉
+Obst（水果）	Birne	die Birne	die Birnen	梨子
+Gemüse（蔬菜）	Gemüse	das Gemüse		蔬菜
+Gemüse（蔬菜）	Gurke	die Gurke	die Gurken	小黃瓜
+Gemüse（蔬菜）	Kartoffel	die Kartoffel	die Kartoffeln	馬鈴薯
+Gemüse（蔬菜）	Salat	der Salat	die Salate	沙拉、生菜
+Gemüse（蔬菜）	Tomate	die Tomate	die Tomaten	番茄
+Gemüse（蔬菜）	Olive	die Olive	die Oliven	橄欖
+Gemüse（蔬菜）	Zwiebel	die Zwiebel	die Zwiebeln	洋蔥
+Backwaren（烘焙食品）	Brot	das Brot	die Brote	麵包
+Backwaren（烘焙食品）	Brötchen	das Brötchen	die Brötchen	小麵包
+Backwaren（烘焙食品）	Keks	der Keks	die Kekse	餅乾
+Backwaren（烘焙食品）	Kuchen	der Kuchen	die Kuchen	蛋糕
+Fleischprodukte（肉類製品）	Fleisch	das Fleisch		肉
+Fleischprodukte（肉類製品）	Hähnchen	das Hähnchen	die Hähnchen	雞肉、小雞
+Fleischprodukte（肉類製品）	Schinken	der Schinken	die Schinken	火腿
+Fleischprodukte（肉類製品）	Wurst	die Wurst	die Würste	香腸
+Fleischprodukte（肉類製品）	Würstchen	das Würstchen	die Würstchen	小香腸
+Milchprodukte（乳製品）	Butter	die Butter		奶油
+Milchprodukte（乳製品）	Joghurt	der Joghurt|das Joghurt	die Joghurts	優格
+Milchprodukte（乳製品）	Käse	der Käse		起司
+Milchprodukte（乳製品）	Milch	die Milch		牛奶
+Milchprodukte（乳製品）	Sahne	die Sahne		鮮奶油
+Andere Lebensmittel（其他食品）	Pfeffer	der Pfeffer		胡椒
+Andere Lebensmittel（其他食品）	Salz	das Salz	die Salze	鹽
+Andere Lebensmittel（其他食品）	Zucker	der Zucker		糖
+Andere Lebensmittel（其他食品）	Essig	der Essig	die Essige	醋
+Andere Lebensmittel（其他食品）	Öl	das Öl	die Öle	油
+Andere Lebensmittel（其他食品）	Nudel	die Nudel	die Nudeln	麵條
+Andere Lebensmittel（其他食品）	Reis	der Reis		米、米飯
+Andere Lebensmittel（其他食品）	Ei	das Ei	die Eier	蛋
+Andere Lebensmittel（其他食品）	Fisch	der Fisch	die Fische	魚
+Andere Lebensmittel（其他食品）	Schokolade	die Schokolade	die Schokoladen	巧克力
+Andere Lebensmittel（其他食品）	Marmelade	die Marmelade	die Marmeladen	果醬
+Andere Lebensmittel（其他食品）	Müsli	das Müsli	die Müslis	穀物早餐
+Getränke（飲料）	Getränk	das Getränk	die Getränke	飲料
+Getränke（飲料）	Wasser	das Wasser		水
+Getränke（飲料）	Saft	der Saft	die Säfte	果汁
+Getränke（飲料）	Limonade	die Limonade	die Limonaden	汽水
+Getränke（飲料）	Cola	die Cola	die Colas	可樂
+Getränke（飲料）	Kaffee	der Kaffee	die Kaffees	咖啡
+Getränke（飲料）	Tee	der Tee	die Tees	茶
+Geschäfte（商店）	Bäckerei	die Bäckerei	die Bäckereien	麵包店
+Geschäfte（商店）	Markt	der Markt	die Märkte	市場
+Geschäfte（商店）	Metzgerei	die Metzgerei	die Metzgereien	肉舖
+Geschäfte（商店）	Supermarkt	der Supermarkt	die Supermärkte	超市
+Packungen und Maße（包裝與計量）	Packung	die Packung	die Packungen	一包、包裝
+Packungen und Maße（包裝與計量）	Becher	der Becher	die Becher	杯、杯裝容器
+Packungen und Maße（包裝與計量）	Dose	die Dose	die Dosen	罐
+Packungen und Maße（包裝與計量）	Stück	das Stück	die Stücke	一塊、一件
+Packungen und Maße（包裝與計量）	Tüte	die Tüte	die Tüten	袋子
+Packungen und Maße（包裝與計量）	Gramm	das Gramm	die Gramm	公克
+Packungen und Maße（包裝與計量）	Kilo	das Kilo	die Kilos	公斤
+Packungen und Maße（包裝與計量）	Kilogramm	das Kilogramm	die Kilogramm	公斤
+Packungen und Maße（包裝與計量）	Liter	der Liter	die Liter	公升
+Beim Einkaufen（購物）	Einkaufswagen	der Einkaufswagen	die Einkaufswagen	購物車
+Beim Einkaufen（購物）	Preis	der Preis	die Preise	價格
+Beim Einkaufen（購物）	Kassenzettel	der Kassenzettel	die Kassenzettel	收據
+Gerichte（料理）	Gericht	das Gericht	die Gerichte	料理
+Gerichte（料理）	Suppe	die Suppe	die Suppen	湯
+Gerichte（料理）	Pizza	die Pizza	die Pizzas|die Pizzen	披薩
+Gerichte（料理）	Pommes frites		die Pommes frites	薯條

@@ -1,0 +1,71 @@
+name: Deploy German practice
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'courses/**'
+      - 'dist/audio/**'
+      - 'template.html'
+      - 'build.py'
+      - 'audio_store.py'
+      - 'requirements.txt'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: german-practice-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements.txt
+      - run: python audio_store.py restore .stored-audio
+      - run: python build.py --audio-store .stored-audio --output _site
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generated-audio
+          path: _site/audio
+          if-no-files-found: error
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  archive:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - uses: actions/download-artifact@v4
+        with:
+          name: generated-audio
+          path: .generated-audio
+      - run: python audio_store.py save .generated-audio
+
+  deploy:
+    needs: [build, archive]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deploy

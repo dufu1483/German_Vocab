@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>德文名詞聽寫</title>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#202c24;background:#f1f3eb;--green:#244b37;--line:#d4ded2}
+*{box-sizing:border-box} body{margin:0} main{max-width:780px;margin:auto;padding:clamp(18px,5vw,50px)}
+h1,h2,p{margin:0 0 .7em} h1{font-size:clamp(1.8rem,5vw,2.7rem);letter-spacing:-.04em}
+header{margin-bottom:1.4rem} header p{color:#48594c} section{background:#fffefa;border:1px solid var(--line);border-radius:20px;padding:clamp(18px,4vw,36px)}
+label{font-weight:600} select,input:not([type=checkbox]){display:block;width:100%;padding:.65rem .8rem;margin:.25rem 0 .8rem;border:1px solid #849688;border-radius:8px;background:white;color:inherit;font:inherit}
+fieldset{border:none;padding:0;margin:1rem 0} legend{font-weight:650;margin-bottom:.4rem}
+#categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:.35rem .9rem;margin-top:.55rem}
+#categories label{font-weight:450;padding:.3rem 0} input[type=checkbox]{accent-color:var(--green);margin-right:.5rem}
+button{font:inherit;font-weight:650;color:var(--green);border:1px solid #8da794;background:#f3f7ee;border-radius:9px;padding:.52rem .85rem;cursor:pointer;min-height:42px}
+button.primary{background:var(--green);border-color:var(--green);color:white} button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ad701b;outline-offset:2px}
+.controls,#letters{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.9rem 0}
+#letters button{padding:.25rem .55rem;min-width:36px} #audio-status,#feedback{color:#763718}
+[aria-invalid=true]{border-color:#b34a31!important;background:#fff5ee!important}
+#solution{background:#edf4e8;border-radius:8px;padding:.75rem;margin:.7rem 0}
+#progress{width:100%;accent-color:var(--green);margin-bottom:.5rem} #missed{padding-left:1.4rem} [hidden]{display:none!important}
+</style>
+</head>
+<body><main>
+<header><h1>德文名詞聽寫</h1><p>聽發音，寫出含冠詞的單數或複數。</p></header>
+<section id="setup">
+<label for="course">課程</label><select id="course"></select>
+<fieldset><legend>練習類別</legend><label><input type="checkbox" id="all" checked>全選類別</label><div id="categories"></div></fieldset>
+<p id="count" aria-live="polite"></p><button class="primary" id="start">開始練習</button>
+</section>
+<section id="exercise" hidden>
+<h2 id="position"></h2><progress id="progress" aria-label="練習進度"></progress>
+<div class="controls"><button id="replay">重播</button><button id="slow">慢速播放</button></div>
+<p id="audio-status" role="status"></p>
+<form id="answers" autocomplete="off" novalidate>
+<div id="singular-row"><label for="singular">單數（含冠詞）</label><input id="singular" lang="de" spellcheck="false" autocapitalize="off"></div>
+<div id="plural-row"><label for="plural">複數（含 die）</label><input id="plural" lang="de" spellcheck="false" autocapitalize="off"></div>
+<div id="letters" role="group" aria-label="德文字元"></div>
+<p id="feedback" aria-live="polite"></p><div id="solution" aria-live="polite" hidden></div>
+<div class="controls"><button class="primary" id="check" type="submit">檢查答案</button><button id="reveal" type="button">看解答</button><button class="primary" id="next" type="button" hidden>下一題</button></div>
+</form>
+<button id="back">返回課程</button>
+</section>
+<section id="results" hidden>
+<h2 id="score" tabindex="-1"></h2><p id="review-title"></p><ul id="missed"></ul>
+<div class="controls"><button class="primary" id="retry">重練錯題</button><button id="again">原類別再練</button><button id="choose">返回課程</button></div>
+</section>
+</main>
+<script type="application/json" id="courses">[{"title": "食品與購物", "words": [{"category": "Obst（水果）", "spoken": "Obst", "singular": ["das Obst"], "plural": [], "meaning": "水果", "audio": "audio/98abec0a2c041321dbf5107404c7ff1b60b6a7252522fe9376b2ca448d38f4bd.mp3"}, {"category": "Obst（水果）", "spoken": "Apfel", "singular": ["der Apfel"], "plural": ["die Äpfel"], "meaning": "蘋果", "audio": "audio/28f239123591f201a005afc6cd92207e4008bbf6a2f44224c281d100d54cdc37.mp3"}, {"category": "Obst（水果）", "spoken": "Banane", "singular": ["die Banane"], "plural": ["die Bananen"], "meaning": "香蕉", "audio": "audio/e287a7e873327ba7d369d36104b269d41baf6a2e256ef05d70c2f2578a072be5.mp3"}, {"category": "Obst（水果）", "spoken": "Birne", "singular": ["die Birne"], "plural": ["die Birnen"], "meaning": "梨子", "audio": "audio/28751c2dda9cc4c144f46f10c81382dcbc5370aa4188ccc300b972663a986b3e.mp3"}, {"category": "Gemüse（蔬菜）", "spoken": "Gemüse", "singular": ["das Gemüse"], "plural": [], "meaning": "蔬菜", "audio": "audio/71685d6675fa02c3dffe5519043273f6b68c738c4856ee4f7ae32225787a9533.mp3"}, {"category": "Gemüse（蔬菜）", "spoken": "Gurke", "singular": ["die Gurke"], "plural": ["die Gurken"], "meaning": "小黃瓜", "audio": "audio/2ac90667571b828351c0b2f869fe7ab683ccdfa4ad949080303b960c33cf8bea.mp3"}, {"category": "Gemüse（蔬菜）", "spoken": "Kartoffel", "singular": ["die Kartoffel"], "plural": ["die Kartoffeln"], "meaning": "馬鈴薯", "audio": "audio/f7b1369e563a4182fd5e575218238c9ab52fda8656884d4870ec95e1e2163f6f.mp3"}, {"category": "Gemüse（蔬菜）", "spoken": "Salat", "singular": ["der Salat"], "plural": ["die Salate"], "meaning": "沙拉、生菜", "audio": "audio/d1bef08693368af019ac59802e8768767be4c105aff4afa1c9c9eb89082596cd.mp3"}, {"category": "Gemüse（蔬菜）", "spoken": "Tomate", "singular": ["die Tomate"], "plural": ["die Tomaten"], "meaning": "番茄", "audio": "audio/0e1270f1372c78e111e82d5212cde8cb07fca07233fdfba18b665d6688e8b616.mp3"}, {"category": "Gemüse（蔬菜）", "spoken": "Olive", "singular": ["die Olive"], "plural": ["die Oliven"], "meaning": "橄欖", "audio": "audio/bd849f623241cbf4d6e688abe487735e7596c5cacd758603eb4d807d849a1634.mp3"}, {"category": "Gemüse（蔬菜）", "spoken": "Zwiebel", "singular": ["die Zwiebel"], "plural": ["die Zwiebeln"], "meaning": "洋蔥", "audio": "audio/a64d7c30b668be650f161593917b43293ee490f9a8ead6ef1c445251787ada75.mp3"}, {"category": "Backwaren（烘焙食品）", "spoken": "Brot", "singular": ["das Brot"], "plural": ["die Brote"], "meaning": "麵包", "audio": "audio/e8a15020133a6f4c643705f8c3ab2a78e30c3ac03717ff50b86594c85b3b2f14.mp3"}, {"category": "Backwaren（烘焙食品）", "spoken": "Brötchen", "singular": ["das Brötchen"], "plural": ["die Brötchen"], "meaning": "小麵包", "audio": "audio/3ea23477e38c4fd3f980e7bd54146d47be2732c91dce5699e6f263e2301f53af.mp3"}, {"category": "Backwaren（烘焙食品）", "spoken": "Keks", "singular": ["der Keks"], "plural": ["die Kekse"], "meaning": "餅乾", "audio": "audio/9d3a18e6e8df2359b2290536161d806090e42f67495438e22d52a609cf508393.mp3"}, {"category": "Backwaren（烘焙食品）", "spoken": "Kuchen", "singular": ["der Kuchen"], "plural": ["die Kuchen"], "meaning": "蛋糕", "audio": "audio/d505b7e561d36b379cce5a19311b09cb10a6ec8e4f289655ba1fa67895ef906b.mp3"}, {"category": "Fleischprodukte（肉類製品）", "spoken": "Fleisch", "singular": ["das Fleisch"], "plural": [], "meaning": "肉", "audio": "audio/5c8b04274e7480bb397eac674722ce273fd192febb7d9b5aa58df41f08e67218.mp3"}, {"category": "Fleischprodukte（肉類製品）", "spoken": "Hähnchen", "singular": ["das Hähnchen"], "plural": ["die Hähnchen"], "meaning": "雞肉、小雞", "audio": "audio/d0efef969a059871bc369c62d7518758cde2a3c1c63bcfdafb316263e6c1a6c9.mp3"}, {"category": "Fleischprodukte（肉類製品）", "spoken": "Schinken", "singular": ["der Schinken"], "plural": ["die Schinken"], "meaning": "火腿", "audio": "audio/5239958ea54d96c9defed3f5e51e99d371256e2fa4a58736e7b404448acd02ea.mp3"}, {"category": "Fleischprodukte（肉類製品）", "spoken": "Wurst", "singular": ["die Wurst"], "plural": ["die Würste"], "meaning": "香腸", "audio": "audio/a0dc4fbd57d8c9322516b0ea756b57742d144ea886f952044597ac4884488cd1.mp3"}, {"category": "Fleischprodukte（肉類製品）", "spoken": "Würstchen", "singular": ["das Würstchen"], "plural": ["die Würstchen"], "meaning": "小香腸", "audio": "audio/3347c552b83c164541a71fff52bde11615024365494fce1905b6edb138f6a9e8.mp3"}, {"category": "Milchprodukte（乳製品）", "spoken": "Butter", "singular": ["die Butter"], "plural": [], "meaning": "奶油", "audio": "audio/13e7a5295f0732afd76788c9556e0d4c5b3394f0109b5a7d43ed7da51334cb1b.mp3"}, {"category": "Milchprodukte（乳製品）", "spoken": "Joghurt", "singular": ["der Joghurt", "das Joghurt"], "plural": ["die Joghurts"], "meaning": "優格", "audio": "audio/f60cb19cf398ad7e5e5bed89242eed70681ce692b8961d36440f0d6dbb8b5523.mp3"}, {"category": "Milchprodukte（乳製品）", "spoken": "Käse", "singular": ["der Käse"], "plural": [], "meaning": "起司", "audio": "audio/b685eba2fb679e949dc6d4024deba67162183d521fa2613c9d29ea4f7f6282e9.mp3"}, {"category": "Milchprodukte（乳製品）", "spoken": "Milch", "singular": ["die Milch"], "plural": [], "meaning": "牛奶", "audio": "audio/85b284ff3d79c71e528f63564af2f399639b2e20c81cedb3b5bf89f8c4af55ee.mp3"}, {"category": "Milchprodukte（乳製品）", "spoken": "Sahne", "singular": ["die Sahne"], "plural": [], "meaning": "鮮奶油", "audio": "audio/e942efb8e62add297205cf98e5fab64de07dec67669e20619bd95b50972b0bc9.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Pfeffer", "singular": ["der Pfeffer"], "plural": [], "meaning": "胡椒", "audio": "audio/dbab7a13373480ae24d9b34b90f3c5ccb730650a5f2d282bf0a41ce27dda284b.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Salz", "singular": ["das Salz"], "plural": ["die Salze"], "meaning": "鹽", "audio": "audio/29fce52ea813451e2bbade8373f8f9e20b01490d8775ea38ae59139b4e76f424.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Zucker", "singular": ["der Zucker"], "plural": [], "meaning": "糖", "audio": "audio/30a11d90a83f5355cee8e2c4ae30e3bb664836a726db8063d87286e7414ff615.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Essig", "singular": ["der Essig"], "plural": ["die Essige"], "meaning": "醋", "audio": "audio/e017716bc541a7fce5d3653e9b7fe7e8a5ba9e31246d15f56a018038578cd795.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Öl", "singular": ["das Öl"], "plural": ["die Öle"], "meaning": "油", "audio": "audio/252ab4e1df3d5042d4fe0646a77863533dd1f2dfee770ffe43fca57c27ccff37.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Nudel", "singular": ["die Nudel"], "plural": ["die Nudeln"], "meaning": "麵條", "audio": "audio/7f610867e435ab5d1e2e8bbc1a6a393ad777d7cbecb9503fb9c0266e831dfc01.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Reis", "singular": ["der Reis"], "plural": [], "meaning": "米、米飯", "audio": "audio/d687964d46fd4d6ccac8ceb788a2d2a05179336ed335d53b55aed68b06d21ad3.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Ei", "singular": ["das Ei"], "plural": ["die Eier"], "meaning": "蛋", "audio": "audio/042aa8a32b72cda49d4f2cdb24bd35aeb50d5e6dc193746c77151476acd00ba9.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Fisch", "singular": ["der Fisch"], "plural": ["die Fische"], "meaning": "魚", "audio": "audio/4bd3da714b7aa243ffa81acf6c54093bf46e5bf5e8be311df488011484def994.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Schokolade", "singular": ["die Schokolade"], "plural": ["die Schokoladen"], "meaning": "巧克力", "audio": "audio/d58511cdbb1db4a357fa7c73554b20dfb94eca01a286dbca28d043ba01f13aaa.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Marmelade", "singular": ["die Marmelade"], "plural": ["die Marmeladen"], "meaning": "果醬", "audio": "audio/6b97cf525e0be0eeb3bb1d85f9217c6184b4af830544b2198ae2502560415f17.mp3"}, {"category": "Andere Lebensmittel（其他食品）", "spoken": "Müsli", "singular": ["das Müsli"], "plural": ["die Müslis"], "meaning": "穀物早餐", "audio": "audio/272030a25af0d8bfe65ec1f1f39117966612ad5f7fa16ce94271c4fcacbe1367.mp3"}, {"category": "Getränke（飲料）", "spoken": "Getränk", "singular": ["das Getränk"], "plural": ["die Getränke"], "meaning": "飲料", "audio": "audio/5a808ca46c13c61425a6d20c571ecd91926db3ca8f77e8813585cf97653d954d.mp3"}, {"category": "Getränke（飲料）", "spoken": "Wasser", "singular": ["das Wasser"], "plural": [], "meaning": "水", "audio": "audio/9d99695052ac717b4754046bc672b27f26757bfbf31e2958f7fe9f4ec8db07e7.mp3"}, {"category": "Getränke（飲料）", "spoken": "Saft", "singular": ["der Saft"], "plural": ["die Säfte"], "meaning": "果汁", "audio": "audio/b9484f837c419e57a5f6a7519b73c099df797b6bb968fa57d09df73c718453ab.mp3"}, {"category": "Getränke（飲料）", "spoken": "Limonade", "singular": ["die Limonade"], "plural": ["die Limonaden"], "meaning": "汽水", "audio": "audio/52a2686372cd2c51d30efa4add3ba8450b4438bb928ce33f2cee0651888c2d21.mp3"}, {"category": "Getränke（飲料）", "spoken": "Cola", "singular": ["die Cola"], "plural": ["die Colas"], "meaning": "可樂", "audio": "audio/3501973234b1f35d3d962362f6059e25140d3e990f5a60f6442d6e0e8771dcc4.mp3"}, {"category": "Getränke（飲料）", "spoken": "Kaffee", "singular": ["der Kaffee"], "plural": ["die Kaffees"], "meaning": "咖啡", "audio": "audio/4bb6a48413feffa085cc83d2e140238b118dc4ca244e1eebc2fd5b5471e58e73.mp3"}, {"category": "Getränke（飲料）", "spoken": "Tee", "singular": ["der Tee"], "plural": ["die Tees"], "meaning": "茶", "audio": "audio/ba81967cb8347ea44ffa07cf9c918a5cb64545577097f547028a20648e83588b.mp3"}, {"category": "Geschäfte（商店）", "spoken": "Bäckerei", "singular": ["die Bäckerei"], "plural": ["die Bäckereien"], "meaning": "麵包店", "audio": "audio/b97938f2c7a37e2ca60510990e9b5f466d074e1bb3aa5a27ca9793a548dd935f.mp3"}, {"category": "Geschäfte（商店）", "spoken": "Markt", "singular": ["der Markt"], "plural": ["die Märkte"], "meaning": "市場", "audio": "audio/0bea6998538ef4fe0e51859f72405faba9d64b615feb68bb0bb43ee8c5922938.mp3"}, {"category": "Geschäfte（商店）", "spoken": "Metzgerei", "singular": ["die Metzgerei"], "plural": ["die Metzgereien"], "meaning": "肉舖", "audio": "audio/b68222ae7167800dc132922469533c22678e37bf3dbf60384114e5f86673158d.mp3"}, {"category": "Geschäfte（商店）", "spoken": "Supermarkt", "singular": ["der Supermarkt"], "plural": ["die Supermärkte"], "meaning": "超市", "audio": "audio/65229c7a62bd400e3c7d0c8d43b4b2a7b544f0ac49107404549762fdadd2675e.mp3"}, {"category": "Packungen und Maße（包裝與計量）", "spoken": "Packung", "singular": ["die Packung"], "plural": ["die Packungen"], "meaning": "一包、包裝", "audio": "audio/b3b0c63d594f70d9062d4b199a9e3c7ddc48974b909f7489c8df6c0fb4cbb66c.mp3"}, {"category": "Packungen und Maße（包裝與計量）", "spoken": "Becher", "singular": ["der Becher"], "plural": ["die Becher"], "meaning": "杯、杯裝容器", "audio": "audio/228a36a28553947b95cf167b9a631b5e3e192221e38ca6d8e92407c10313f6c0.mp3"}, {"category": "Packungen und Maße（包裝與計量）", "spoken": "Dose", "singular": ["die Dose"], "plural": ["die Dosen"], "meaning": "罐", "audio": "audio/16aecd18bca28b50e5cbb2afe09908955a499239cf6d4fcd3ff0bf4d36e8ea5d.mp3"}, {"category": "Packungen und Maße（包裝與計量）", "spoken": "Stück", "singular": ["das Stück"], "plural": ["die Stücke"], "meaning": "一塊、一件", "audio": "audio/a49013bf47cef6dae2aba8448d67bfbacf368c6baaaffa4c194dcfe09be34738.mp3"}, {"category": "Packungen und Maße（包裝與計量）", "spoken": "Tüte", "singular": ["die Tüte"], "plural": ["die Tüten"], "meaning": "袋子", "audio": "audio/db9ef4f49b5dd245cde9a11ab7a3b0c289b72fc09b023d106901584acf07f73d.mp3"}, {"category": "Packungen und Maße（包裝與計量）", "spoken": "Gramm", "singular": ["das Gramm"], "plural": ["die Gramm"], "meaning": "公克", "audio": "audio/47eea254413f701dea005cd2601c9932017a70ef69450e16c4ea7b5dcc9ff274.mp3"}, {"category": "Packungen und Maße（包裝與計量）", "spoken": "Kilo", "singular": ["das Kilo"], "plural": ["die Kilos"], "meaning": "公斤", "audio": "audio/f4a537d6f0cd2190cadfa4c926d3c614b0b37de7317c76b89fac77248b3079fa.mp3"}, {"category": "Packungen und Maße（包裝與計量）", "spoken": "Kilogramm", "singular": ["das Kilogramm"], "plural": ["die Kilogramm"], "meaning": "公斤", "audio": "audio/856c574e329b7f2837c0866e50587ed136967e69f63180536aa08cd685f04218.mp3"}, {"category": "Packungen und Maße（包裝與計量）", "spoken": "Liter", "singular": ["der Liter"], "plural": ["die Liter"], "meaning": "公升", "audio": "audio/d2ff9fb5fb2528813a6467611a1e8235d117cff99f0d16ccea6f2271e09740af.mp3"}, {"category": "Beim Einkaufen（購物）", "spoken": "Einkaufswagen", "singular": ["der Einkaufswagen"], "plural": ["die Einkaufswagen"], "meaning": "購物車", "audio": "audio/f25b2331a7c2db49602821a05379ec16cb6cd74246ac897f6ef615c70f3970eb.mp3"}, {"category": "Beim Einkaufen（購物）", "spoken": "Preis", "singular": ["der Preis"], "plural": ["die Preise"], "meaning": "價格", "audio": "audio/dabe2f9f440280a7a3a74324fd02c1240ec316fcbc117d9a62a7f386686f9b4a.mp3"}, {"category": "Beim Einkaufen（購物）", "spoken": "Kassenzettel", "singular": ["der Kassenzettel"], "plural": ["die Kassenzettel"], "meaning": "收據", "audio": "audio/40ce4148c5dc48382c80330d5ec635f52a1d705a321a3e260d6be932737279b3.mp3"}, {"category": "Gerichte（料理）", "spoken": "Gericht", "singular": ["das Gericht"], "plural": ["die Gerichte"], "meaning": "料理", "audio": "audio/96e13cb848703f356f721356ee7d1951aee65fe1dcc9948802d8b2c7c39e561b.mp3"}, {"category": "Gerichte（料理）", "spoken": "Suppe", "singular": ["die Suppe"], "plural": ["die Suppen"], "meaning": "湯", "audio": "audio/ed9c5388f0236d91cfff7ccbef457459a874e9e74ac19b13e0238216a53f97f7.mp3"}, {"category": "Gerichte（料理）", "spoken": "Pizza", "singular": ["die Pizza"], "plural": ["die Pizzas", "die Pizzen"], "meaning": "披薩", "audio": "audio/12f50d520dd1307996a94ee02c42888fa6d86651d213ba1637e663b2c936f3b2.mp3"}, {"category": "Gerichte（料理）", "spoken": "Pommes frites", "singular": [], "plural": ["die Pommes frites"], "meaning": "薯條", "audio": "audio/636d59b6dce53ae5eb22f4dbb0f24c4f89ea4b5f86593546c1b92e87b040a719.mp3"}]}]</script>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const courses = JSON.parse($("courses").textContent);
+const audio = new Audio();
+const forms = ["singular", "plural"];
+let words = [], original = [], missed = [], index = 0, firstCorrect = 0;
+let attempted, resolved, review, activeField, playback = 0;
+
+function show(view) {
+  for (const section of ["setup", "exercise", "results"]) $(section).hidden = section !== view;
+}
+function selectedWords() {
+  const selected = new Set([...$("categories").querySelectorAll("input:checked")].map(box => box.value));
+  return courses[$("course").selectedIndex].words.filter(word => selected.has(word.category));
+}
+function updateSelection() {
+  const boxes = [...$("categories").querySelectorAll("input")];
+  const checked = boxes.filter(box => box.checked).length;
+  $("all").checked = checked === boxes.length;
+  $("all").indeterminate = checked > 0 && checked < boxes.length;
+  const count = selectedWords().length;
+  $("count").textContent = count + " 題";
+  $("start").disabled = !count;
+}
+function loadCategories() {
+  $("categories").replaceChildren();
+  for (const category of new Set(courses[$("course").selectedIndex].words.map(word => word.category))) {
+    const label = document.createElement("label");
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.value = category;
+    box.checked = true;
+    label.append(box, category);
+    $("categories").append(label);
+  }
+  updateSelection();
+}
+function loadRound(items, isReview = false) {
+  words = [...items];
+  for (let i = words.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [words[i], words[j]] = [words[j], words[i]];
+  }
+  index = firstCorrect = 0;
+  missed = [];
+  review = isReview;
+  show("exercise");
+  loadWord();
+}
+function play(rate) {
+  const request = ++playback;
+  audio.pause();
+  if (audio.error) audio.load();
+  audio.currentTime = 0;
+  audio.playbackRate = rate;
+  $("audio-status").textContent = "";
+  audio.play().catch(() => {
+    if (request !== playback) return;
+    $("audio-status").textContent = "音檔播放失敗，請按重試播放。";
+    $("replay").textContent = "重試播放";
+  });
+}
+function loadWord() {
+  const word = words[index];
+  attempted = resolved = false;
+  $("position").textContent = "第 " + (index + 1) + " / " + words.length + " 題";
+  $("progress").max = words.length;
+  $("progress").value = index + 1;
+  for (const form of forms) {
+    $(form + "-row").hidden = !word[form].length;
+    $(form).value = "";
+    $(form).readOnly = false;
+    $(form).removeAttribute("aria-invalid");
+  }
+  for (const id of ["letters", "check", "reveal"]) $(id).hidden = false;
+  for (const id of ["next", "solution"]) $(id).hidden = true;
+  $("feedback").textContent = "";
+  $("replay").textContent = "重播";
+  activeField = word.singular.length ? "singular" : "plural";
+  $(activeField).focus();
+  audio.src = word.audio;
+  play(1);
+}
+function normalize(value) {
+  return value.normalize("NFC").trim().replace(/\s+/gu, " ");
+}
+function complete(correct) {
+  resolved = true;
+  const word = words[index];
+  if (correct && !attempted) firstCorrect++;
+  else missed.push(word);
+  for (const form of forms) {
+    $(form).readOnly = true;
+    $(form).removeAttribute("aria-invalid");
+  }
+  for (const id of ["letters", "check", "reveal"]) $(id).hidden = true;
+  $("feedback").textContent = correct ? "答對了" : "解答";
+  const answer = [...forms.flatMap(form => word[form].length ? [word[form].join(" ／ ")] : []), word.meaning].filter(Boolean);
+  $("solution").replaceChildren(...answer.map(text => {
+    const line = document.createElement("div");
+    line.textContent = text;
+    return line;
+  }));
+  $("solution").hidden = false;
+  $("next").hidden = false;
+  $("next").focus();
+}
+function check(event) {
+  event.preventDefault();
+  if (resolved) return;
+  const word = words[index];
+  const required = forms.filter(form => word[form].length);
+  const blank = required.find(form => !normalize($(form).value));
+  if (blank) {
+    $("feedback").textContent = "請填寫所有作答欄。";
+    $(blank).focus();
+    return;
+  }
+  const wrong = required.filter(form => !word[form].some(answer => normalize(answer) === normalize($(form).value)));
+  if (!wrong.length) {
+    complete(true);
+    return;
+  }
+  attempted = true;
+  for (const form of required) $(form).setAttribute("aria-invalid", wrong.includes(form));
+  $("feedback").textContent = "請修改標示的欄位，或查看解答。";
+  $(wrong[0]).focus();
+}
+function next() {
+  if (!resolved) return;
+  playback++;
+  audio.pause();
+  index++;
+  if (index < words.length) {
+    loadWord();
+    return;
+  }
+  show("results");
+  $("score").textContent = "第一次全對 " + firstCorrect + " / " + words.length;
+  $("review-title").textContent = missed.length ? "待複習的詞" : (review ? "錯題已練完" : "本輪全對");
+  $("missed").replaceChildren(...missed.map(word => {
+    const item = document.createElement("li");
+    item.textContent = [...word.singular, ...word.plural].join(" ／ ");
+    return item;
+  }));
+  $("retry").hidden = missed.length === 0;
+  $("score").focus();
+}
+function returnToSetup() {
+  playback++;
+  audio.pause();
+  show("setup");
+  $("course").focus();
+}
+for (const course of courses) $("course").add(new Option(course.title));
+for (const symbol of "äöüÄÖÜß") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = symbol;
+  button.addEventListener("click", () => {
+    const field = $(activeField);
+    field.setRangeText(symbol, field.selectionStart, field.selectionEnd, "end");
+    field.focus();
+  });
+  $("letters").append(button);
+}
+for (const form of forms) $(form).addEventListener("focus", () => { activeField = form; });
+$("course").addEventListener("change", loadCategories);
+$("categories").addEventListener("change", updateSelection);
+$("all").addEventListener("change", () => {
+  for (const box of $("categories").querySelectorAll("input")) box.checked = $("all").checked;
+  updateSelection();
+});
+$("start").addEventListener("click", () => { original = selectedWords(); if (original.length) loadRound(original); });
+$("replay").addEventListener("click", () => { $("replay").textContent = "重播"; play(1); });
+$("slow").addEventListener("click", () => play(.75));
+$("answers").addEventListener("submit", check);
+$("reveal").addEventListener("click", () => complete(false));
+$("next").addEventListener("click", next);
+$("retry").addEventListener("click", () => loadRound(missed, true));
+$("again").addEventListener("click", () => loadRound(original));
+$("back").addEventListener("click", returnToSetup);
+$("choose").addEventListener("click", returnToSetup);
+loadCategories();
+</script>
+</body></html>
