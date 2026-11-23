@@ -14,6 +14,9 @@ label{font-weight:600} select,input:not([type=checkbox]){display:block;width:100
 fieldset{border:none;padding:0;margin:1rem 0} legend{font-weight:650;margin-bottom:.4rem}
 #categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:.35rem .9rem;margin-top:.55rem}
 #categories label{font-weight:450;padding:.3rem 0} input[type=checkbox]{accent-color:var(--green);margin-right:.5rem}
+.round-length{display:flex;flex-wrap:wrap;align-items:end;gap:.6rem 1rem;margin:1rem 0}
+.round-length input[type=number]{max-width:10rem;margin-bottom:0}
+.round-length .all-words{padding:.6rem 0}
 button{font:inherit;font-weight:650;color:var(--green);border:1px solid #8da794;background:#f3f7ee;border-radius:9px;padding:.52rem .85rem;cursor:pointer;min-height:42px}
 button.primary{background:var(--green);border-color:var(--green);color:white} button:disabled{opacity:.5;cursor:default}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ad701b;outline-offset:2px}
@@ -29,6 +32,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 <section id="setup">
 <label for="course">課程</label><select id="course"></select>
 <fieldset><legend>練習類別</legend><label><input type="checkbox" id="all" checked>全選類別</label><div id="categories"></div></fieldset>
+<div class="round-length">
+<label for="round-limit">本輪最多幾個詞<input type="number" id="round-limit" min="1" step="1" value="10" aria-describedby="count"></label>
+<label class="all-words"><input type="checkbox" id="unlimited">全部</label>
+</div>
 <p id="count" aria-live="polite"></p><button class="primary" id="start">開始練習</button>
 </section>
 <section id="exercise" hidden>
@@ -56,7 +63,9 @@ const $ = id => document.getElementById(id);
 const courses = JSON.parse($("courses").textContent);
 const audio = new Audio();
 const forms = ["singular", "plural"];
-let words = [], original = [], missed = [], index = 0, firstCorrect = 0;
+const completed = new Set();
+let original = [], roundLimit;
+let words = [], missed = [], index = 0, firstCorrect = 0;
 let attempted, resolved, review, activeField, playback = 0;
 
 function show(view) {
@@ -66,14 +75,32 @@ function selectedWords() {
   const selected = new Set([...$("categories").querySelectorAll("input:checked")].map(box => box.value));
   return courses[$("course").selectedIndex].words.filter(word => selected.has(word.category));
 }
+function sameSelection(selection) {
+  return selection.length === original.length && selection.every((word, i) => word === original[i]);
+}
+function eligibleWords(selection) {
+  if (!sameSelection(selection)) return selection;
+  const unseen = selection.filter(word => !completed.has(word));
+  return unseen.length ? unseen : selection;
+}
+function requestedRoundLimit() {
+  if ($("unlimited").checked) return Infinity;
+  const value = $("round-limit").valueAsNumber;
+  return Number.isInteger(value) && value > 0 ? value : null;
+}
 function updateSelection() {
   const boxes = [...$("categories").querySelectorAll("input")];
   const checked = boxes.filter(box => box.checked).length;
   $("all").checked = checked === boxes.length;
   $("all").indeterminate = checked > 0 && checked < boxes.length;
-  const count = selectedWords().length;
-  $("count").textContent = count + " 題";
-  $("start").disabled = !count;
+  const count = eligibleWords(selectedWords()).length;
+  const limit = requestedRoundLimit();
+  $("round-limit").disabled = $("unlimited").checked;
+  $("round-limit").setAttribute("aria-invalid", limit === null);
+  $("count").textContent = limit === null
+    ? "請輸入大於 0 的整數，或勾選「全部」。"
+    : "本輪 " + Math.min(count, limit) + " 題，共有 " + count + " 個詞可選";
+  $("start").disabled = count === 0 || limit === null;
 }
 function loadCategories() {
   $("categories").replaceChildren();
@@ -88,12 +115,20 @@ function loadCategories() {
   }
   updateSelection();
 }
-function loadRound(items, isReview = false) {
-  words = [...items];
-  for (let i = words.length - 1; i > 0; i--) {
+function shuffled(items) {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [words[i], words[j]] = [words[j], words[i]];
+    [result[i], result[j]] = [result[j], result[i]];
   }
+  return result;
+}
+function loadPracticeRound() {
+  if (completed.size === original.length) completed.clear();
+  loadRound(shuffled(eligibleWords(original)).slice(0, roundLimit));
+}
+function loadRound(items, isReview = false) {
+  words = items;
   index = firstCorrect = 0;
   missed = [];
   review = isReview;
@@ -140,6 +175,7 @@ function normalize(value) {
 function complete(correct) {
   resolved = true;
   const word = words[index];
+  if (!review) completed.add(word);
   if (correct && !attempted) firstCorrect++;
   else missed.push(word);
   for (const form of forms) {
@@ -202,6 +238,7 @@ function next() {
 function returnToSetup() {
   playback++;
   audio.pause();
+  updateSelection();
   show("setup");
   $("course").focus();
 }
@@ -224,14 +261,24 @@ $("all").addEventListener("change", () => {
   for (const box of $("categories").querySelectorAll("input")) box.checked = $("all").checked;
   updateSelection();
 });
-$("start").addEventListener("click", () => { original = selectedWords(); if (original.length) loadRound(original); });
+$("round-limit").addEventListener("input", updateSelection);
+$("unlimited").addEventListener("change", updateSelection);
+$("start").addEventListener("click", () => {
+  const selection = selectedWords();
+  const limit = requestedRoundLimit();
+  if (!selection.length || limit === null) return;
+  if (!sameSelection(selection)) completed.clear();
+  original = selection;
+  roundLimit = limit;
+  loadPracticeRound();
+});
 $("replay").addEventListener("click", () => { $("replay").textContent = "重播"; play(1); });
 $("slow").addEventListener("click", () => play(.75));
 $("answers").addEventListener("submit", check);
 $("reveal").addEventListener("click", () => complete(false));
 $("next").addEventListener("click", next);
-$("retry").addEventListener("click", () => loadRound(missed, true));
-$("again").addEventListener("click", () => loadRound(original));
+$("retry").addEventListener("click", () => loadRound(shuffled(missed), true));
+$("again").addEventListener("click", loadPracticeRound);
 $("back").addEventListener("click", returnToSetup);
 $("choose").addEventListener("click", returnToSetup);
 loadCategories();
