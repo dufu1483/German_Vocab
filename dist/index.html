@@ -225,7 +225,7 @@ function next() {
     return;
   }
   show("results");
-  $("score").textContent = "第一次全對 " + firstCorrect + " / " + words.length;
+  $("score").textContent = "本輪答對 " + firstCorrect + " / " + words.length + " 題";
   $("review-title").textContent = missed.length ? "待複習的詞" : (review ? "錯題已練完" : "本輪全對");
   $("missed").replaceChildren(...missed.map(word => {
     const item = document.createElement("li");

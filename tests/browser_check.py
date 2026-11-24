@@ -25,7 +25,7 @@ with sync_playwright() as playwright:
     for _ in range(4):
         page.get_by_role("button", name="看解答").click()
         page.get_by_role("button", name="下一題").click()
-    expect(page.get_by_text("第一次全對 0 / 4")).to_be_visible()
+    expect(page.get_by_role("heading", name="本輪答對 0 / 4 題")).to_be_visible()
     page.get_by_role("button", name="重練錯題").click()
     expect(page.get_by_text("第 1 / 4 題")).to_be_visible()
 
@@ -125,6 +125,11 @@ with sync_playwright() as playwright:
             page.get_by_label("單數（含冠詞）").fill("der Apfel")
             page.get_by_role("button", name="檢查答案").click()
             expect(page.get_by_text("答對了")).to_be_visible()
+            page.get_by_role("button", name="下一題").click()
+            for _ in range(2):
+                page.get_by_role("button", name="看解答").click()
+                page.get_by_role("button", name="下一題").click()
+            expect(page.get_by_role("heading", name="本輪答對 1 / 4 題")).to_be_visible()
 
             failure = desktop.new_page()
             failure.route("**/*.mp3", lambda route: route.abort())
